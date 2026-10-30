@@ -15,6 +15,7 @@ SpeakerKeeper uses [SoundKeeper](https://veg.by/projects/soundkeeper) to play a 
 - Runs only on a specified output device (stops automatically when you switch to headphones, etc.)
 - Edit and save `settings.txt` to apply changes, even while it's running
 - Nothing extra to install (runs on the PowerShell built into Windows)
+- Optional desktop GUI with tray controls, app/device selection, and Light/Dark/System themes ([GUI guide](README_GUI.md))
 
 ## Requirements
 
@@ -43,9 +44,17 @@ Run `1_test_run.bat` first. When you play audio it should show "SoundKeeper 開�
 
 > Console messages are in Japanese.
 
+## Optional desktop GUI
+
+Double-click `Launch-GUI.vbs` after extracting the entire repository, including `tools/`. The GUI starts the same monitoring engine and adds application/device selectors, settings save, themes, a log viewer, and tray controls. Closing the window hides it; choose **終了** from the tray menu to exit and stop its worker.
+
+The original `1_test_run.bat`, `2_add_to_startup.bat`, and `3_remove_from_startup.bat` remain CLI entry points. GUI autostart is separate: use its checkbox or `4_add_gui_to_startup.bat`; remove it with `5_remove_gui_from_startup.bat`. GUI removal only unregisters its shortcut; stop a running GUI from the tray. Enabling one mode refuses to replace an existing startup shortcut for the other mode. Disable the old mode explicitly before enabling the new one. CLI removal stops only this installation's CLI engine and its SoundKeeper children, preserving unrelated or GUI instances.
+
+Both modes share an engine mutex, so they cannot monitor simultaneously. Stop the running mode before starting monitoring in the other. See [README_GUI.md](README_GUI.md) for configuration, migration, and validation limitations.
+
 ## Settings
 
-Open `settings.txt` in Notepad, change the values, and save.
+The app runs with built-in defaults when `settings.txt` is absent. For CLI customization, copy `settings.example.txt` to `settings.txt`, then edit and save it. The optional GUI creates `settings.txt` when you click **設定を保存** (Save). Keep the extracted folder writable. Personal settings are ignored by Git; existing preferences are preserved. Changes are reloaded while monitoring runs, and deleting the file restores defaults.
 
 | Key | Default | Description |
 |---|---|---|
@@ -54,7 +63,10 @@ Open `settings.txt` in Notepad, change the values, and save.
 | `LingerSeconds` | `30` | Seconds to keep playing after other audio stops |
 | `Threshold` | `0.001` | Level (0–1) treated as "audio is playing". Raise it if notification sounds trigger it |
 | `DeviceName` | (empty) | Only runs while the default output device's name contains this text. Empty = any device |
-| `SoundKeeper` | `SoundKeeper64.exe` | SoundKeeper executable name |
+| `SoundKeeper` | `SoundKeeper64.exe` | SoundKeeper executable name or path; use a matching trusted executable for your Windows architecture |
+| `AppName` | (empty) | Optional process name without `.exe`; empty monitors all apps on the default playback device |
+
+When upgrading an older checkout that tracked `settings.txt`, preserve a copy outside the checkout before updating, then restore it. Git may block the update if the old tracked file has local edits; do not discard your preferences. See the [upgrade notes](README_GUI.md#upgrading-an-older-checkout).
 
 The name for `DeviceName` is shown in the `1_test_run.bat` window as "**現在の出力先: ...**" (current output). Example: `Speakers (Realtek(R) Audio)`
 
@@ -86,11 +98,14 @@ Speakers react to different tones.
 - Every 0.25 seconds, it reads each app's audio meter on the default output device using the Windows audio session API (WASAPI / Core Audio)
 - It ignores its own process and SoundKeeper's processes
 - When it detects audio, it starts `SoundKeeper64.exe sine -f <frequency> -a <amplitude>`, and to stop, it ends that process
-- It makes no network connections and writes no files (except the shortcut created when adding it to startup)
+- It makes no network connections. CLI mode reads local settings and manages its startup shortcut. The optional GUI also writes settings, theme preferences, a stop signal, and bounded local logs.
+- A missing, inaccessible, or unexpectedly exiting SoundKeeper executable is reported with recovery instructions; failed launches are retried at most every 30 seconds while audio is active, with repeated identical errors suppressed.
 
 The `.bat` files only run `SpeakerKeeper.ps1` with `powershell -ExecutionPolicy Bypass`. You can check their contents in any text editor.
 
 ## Credits
+
+SpeakerKeeper was created by [shiro23437](https://github.com/shiro23437/SpeakerKeeper). This contribution adds an optional GUI while preserving the original CLI workflow and MIT copyright notice.
 
 The sine wave is played by [SoundKeeper](https://veg.by/projects/soundkeeper) by Evgeny Vrublevsky. SoundKeeper is not included in this repository.
 

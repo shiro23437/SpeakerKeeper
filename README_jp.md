@@ -95,3 +95,7 @@ SpeakerKeeper は、**他のアプリ(ブラウザ・ゲームなど)が音を�
 ## ライセンス
 
 [MIT License](LICENSE)
+
+## Optional GUI and personal configuration (English)
+
+The CLI still works through the original three BAT files. `settings.txt` is now optional and ignored by Git: copy `settings.example.txt` for CLI customization, or let the GUI create it on Save. Without it, both modes use 300 Hz, 0.1% amplitude, and a 30-second linger. Existing settings are not overwritten. For GUI launch, separate GUI autostart, and current limitations, see [README_GUI.md](README_GUI.md). GUI mode does not replace the CLI startup shortcut. Download SoundKeeper separately from its official website.

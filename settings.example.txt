@@ -1,0 +1,11 @@
+# Optional: copy to settings.txt for CLI customization, or use Save in the GUI.
+# settings.txt is personal and ignored by Git. Missing files use these defaults.
+Frequency=300
+Amplitude=0.1
+LingerSeconds=30
+Threshold=0.001
+SoundKeeper=SoundKeeper64.exe
+# Substring of the DEFAULT playback endpoint name; empty matches any default endpoint.
+DeviceName=
+# Process name without .exe; empty monitors all applications.
+AppName=
